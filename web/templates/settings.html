@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Settings – Botersson{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+  <div class="col-12">
+    <h3><i class="bi bi-gear me-2"></i>Settings</h3>
+  </div>
+
+  <!-- Ollama settings -->
+  <div class="col-12 col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-warning text-dark">
+        <i class="bi bi-cpu me-2"></i>Ollama LLM
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">Ollama Host</label>
+          <input type="text" class="form-control" value="{{ ollama_host }}" id="ollama-host" readonly />
+          <small class="text-muted">Set via OLLAMA_HOST in .env</small>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Active Model</label>
+          <input type="text" class="form-control" value="{{ ollama_model }}" id="ollama-model" readonly />
+          <small class="text-muted">Set via OLLAMA_MODEL in .env</small>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Available Models</label>
+          <div>
+            {% if available_models %}
+              {% for m in available_models %}
+                <span class="badge bg-secondary fs-6 me-1 mb-1">{{ m }}</span>
+              {% endfor %}
+            {% else %}
+              <div class="alert alert-warning py-2 mb-0">
+                <i class="bi bi-exclamation-triangle me-1"></i>Ollama not running.<br>
+                Run: <code>ollama serve</code><br>
+                Pull a model: <code>ollama pull llama3.2</code>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        <button class="btn btn-warning" onclick="testOllama()">
+          <i class="bi bi-play me-1"></i>Test Connection
+        </button>
+        <div id="ollama-test-result" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MCP settings -->
+  <div class="col-12 col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-purple text-white" style="background-color:#7030A0!important">
+        <i class="bi bi-diagram-2 me-2"></i>MCP Server
+      </div>
+      <div class="card-body">
+        <p>The Botersson MCP server allows Claude Desktop, Cursor, and other MCP-compatible clients to control the bot.</p>
+        <p class="fw-bold">Add to your MCP config file:</p>
+        <pre class="bg-dark text-light p-3 rounded small">{
+  "mcpServers": {
+    "botersson": {
+      "command": "python",
+      "args": ["-m", "bot.services.mcp_server"],
+      "cwd": "/path/to/Botersson",
+      "env": {
+        "PYTHONPATH": "/path/to/Botersson"
+      }
+    }
+  }
+}</pre>
+        <p class="text-muted small">Default MCP config location:<br>
+          macOS: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code><br>
+          Windows: <code>%APPDATA%\Claude\claude_desktop_config.json</code>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scheduler settings -->
+  <div class="col-12 col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <i class="bi bi-clock me-2"></i>Automation Scheduler
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">Daily Summary Hour</label>
+          <input type="number" class="form-control" value="{{ daily_hour }}" min="0" max="23" id="daily-hour" readonly />
+          <small class="text-muted">Set via config.yaml → scheduler.daily_summary_hour</small>
+        </div>
+        <div class="alert alert-info py-2 mb-0">
+          <i class="bi bi-info-circle me-1"></i>
+          The bot automatically sends a daily research summary at {{ daily_hour }}:00.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discord settings -->
+  <div class="col-12 col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white" style="background-color:#5865F2!important">
+        <i class="bi bi-discord me-2"></i>Discord Bot
+      </div>
+      <div class="card-body">
+        <div class="alert alert-secondary py-2 mb-2">
+          <strong>Bot Commands Available:</strong>
+          <ul class="mb-0 mt-1 small">
+            <li><code>/search &lt;query&gt;</code> – Web search</li>
+            <li><code>/patent &lt;query&gt;</code> – Patent search</li>
+            <li><code>/article &lt;query&gt;</code> – Article search</li>
+            <li><code>/arxiv &lt;query&gt;</code> – arXiv search</li>
+            <li><code>/analyze_article &lt;url&gt; [topic]</code> – Analyze article</li>
+            <li><code>/analyze_patent &lt;url&gt; [topic]</code> – Analyze patent</li>
+            <li><code>/classify &lt;topic&gt; &lt;text&gt;</code> – Classify text</li>
+            <li><code>/ask &lt;question&gt;</code> – Ask AI</li>
+            <li><code>/db_summary</code> – Database summary</li>
+            <li><code>/chart [bar|pie|line] [topic]</code> – Generate chart</li>
+            <li><code>/export_excel</code> – Download Excel</li>
+            <li><code>/add_theme &lt;type&gt; &lt;name&gt;</code> – Add theme</li>
+          </ul>
+        </div>
+        <p class="text-muted small">Set your token in <code>.env</code> → DISCORD_TOKEN</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- macOS setup guide -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <i class="bi bi-apple me-2"></i>macOS Ventura Setup Guide
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <h6>1. Install Python &amp; Ollama</h6>
+            <pre class="bg-dark text-light p-2 rounded small">brew install python@3.11
+brew install ollama
+ollama pull llama3.2</pre>
+          </div>
+          <div class="col-md-4">
+            <h6>2. Install dependencies</h6>
+            <pre class="bg-dark text-light p-2 rounded small">cd /path/to/Botersson
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt</pre>
+          </div>
+          <div class="col-md-4">
+            <h6>3. Configure &amp; Run</h6>
+            <pre class="bg-dark text-light p-2 rounded small">cp .env.example .env
+# Edit .env with your token
+ollama serve &amp;
+python run.py</pre>
+          </div>
+        </div>
+        <div class="alert alert-success mt-2 py-2 mb-0">
+          <i class="bi bi-check-circle me-1"></i>
+          All components are compatible with macOS Ventura (13.x) on both Apple Silicon and Intel (Hackintosh).
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function testOllama() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Testing…';
+  fetch('/api/models')
+    .then(r => r.json())
+    .then(d => {
+      const el = document.getElementById('ollama-test-result');
+      if (d.models && d.models.length) {
+        el.innerHTML = `<div class="alert alert-success py-1">✅ Connected! Models: ${d.models.join(', ')}</div>`;
+      } else {
+        el.innerHTML = `<div class="alert alert-warning py-1">⚠️ Ollama connected but no models found. Run: <code>ollama pull llama3.2</code></div>`;
+      }
+    })
+    .catch(() => {
+      document.getElementById('ollama-test-result').innerHTML =
+        '<div class="alert alert-danger py-1">❌ Cannot reach Ollama. Run: <code>ollama serve</code></div>';
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-play me-1"></i>Test Connection';
+    });
+}
+</script>
+{% endblock %}

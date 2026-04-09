@@ -1,0 +1,70 @@
+/* Botersson – Web GUI Styles */
+
+:root {
+  --bs-body-bg: #f8f9fa;
+  --sidebar-width: 220px;
+}
+
+body {
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bs-body-bg);
+}
+
+/* ── Stat cards ─────────────────────────────────────────── */
+.stat-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ── Tables ──────────────────────────────────────────────── */
+.table th {
+  white-space: nowrap;
+}
+.table td {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Code blocks ─────────────────────────────────────────── */
+pre {
+  font-size: 0.78rem;
+  overflow-x: auto;
+}
+
+/* ── Navbar ──────────────────────────────────────────────── */
+.navbar-brand {
+  letter-spacing: 0.03em;
+}
+
+/* ── Badge colours ───────────────────────────────────────── */
+.bg-purple {
+  background-color: #7030a0 !important;
+  color: #fff;
+}
+
+/* ── Toast ───────────────────────────────────────────────── */
+.toast {
+  min-width: 280px;
+}
+
+/* ── Charts ──────────────────────────────────────────────── */
+.card img.img-fluid {
+  max-height: 360px;
+  object-fit: contain;
+}
+
+/* ── Spinner overlay ─────────────────────────────────────── */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}

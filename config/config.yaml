@@ -1,0 +1,55 @@
+bot:
+  prefix: "!"
+  description: "Botersson – Research Assistant Bot"
+  activity: "Researching... 🔬"
+
+ollama:
+  host: "http://localhost:11434"
+  model: "llama3.2"
+  timeout: 120
+  # Fallback models in order of preference
+  fallback_models:
+    - "mistral"
+    - "phi3"
+    - "llama3"
+
+excel:
+  filename: "research_data.xlsx"
+  sheets:
+    - name: "Macro Themes"
+      color: "4472C4"
+    - name: "Meso Themes"
+      color: "ED7D31"
+    - name: "Micro Themes"
+      color: "A9D18E"
+    - name: "Articles"
+      color: "FF0000"
+    - name: "Patents"
+      color: "7030A0"
+    - name: "Search Results"
+      color: "00B0F0"
+
+web:
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+
+scraping:
+  timeout: 30
+  max_retries: 3
+  delay_between_requests: 1.5
+  user_agent_rotation: true
+
+search:
+  max_results: 10
+  engines:
+    - duckduckgo
+
+patents:
+  sources:
+    - google_patents
+    - espacenet
+
+scheduler:
+  enabled: true
+  daily_summary_hour: 8   # 08:00 local time
