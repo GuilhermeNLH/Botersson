@@ -5,10 +5,7 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
-try:
-    from ddgs import DDGS
-except ImportError:
-    from duckduckgo_search import DDGS  # type: ignore[no-redef]  # legacy fallback
+from duckduckgo_search import DDGS
 
 from config import SearchConfig
 

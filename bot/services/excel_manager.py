@@ -9,7 +9,10 @@ from pathlib import Path
 from typing import Any
 
 import matplotlib
-matplotlib.use("Agg")  # Non-interactive backend (macOS / headless)
+# Use non-interactive Agg backend: avoids GUI dependencies on servers/headless
+# systems and prevents crashes on macOS when no display is available (e.g. when
+# running the bot as a background service or in a terminal-only Hackintosh session).
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import openpyxl
 from openpyxl.chart import BarChart, LineChart, PieChart, Reference

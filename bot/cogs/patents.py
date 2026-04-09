@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 import discord
 from discord.ext import commands
 
@@ -114,8 +116,7 @@ class PatentsCog(commands.Cog, name="Patents & Articles"):
         await ctx.defer()
 
         # Scrape the patent – use netloc-based check to avoid substring confusion
-        from urllib.parse import urlparse as _urlparse
-        _parsed = _urlparse(url)
+        _parsed = urlparse(url)
         _is_google_patents = _parsed.netloc in ("patents.google.com", "www.patents.google.com")
 
         if _is_google_patents:

@@ -188,22 +188,6 @@
 
 {% block scripts %}
 <script>
-// ── Safe DOM helpers ──────────────────────────────────────────────────────────
-function esc(str) {
-  const d = document.createElement('div');
-  d.appendChild(document.createTextNode(String(str || '')));
-  return d.innerHTML;
-}
-
-function safeLink(url, text) {
-  const a = document.createElement('a');
-  a.href = url || '#';
-  a.target = '_blank';
-  a.rel = 'noopener';
-  a.textContent = text || 'Link';
-  return a.outerHTML;
-}
-
 function loadChart() {
   const type = document.getElementById('chart-type-select').value;
   document.getElementById('db-chart').src = `/api/chart?type=${encodeURIComponent(type)}&t=${Date.now()}`;
@@ -237,14 +221,36 @@ function runSearch() {
     results.forEach((r, i) => {
       const div = document.createElement('div');
       div.className = 'mb-2 p-2 border rounded';
-      const title = r.title || 'No title';
-      const url = r.url || r.href || '#';
-      const snippet = (r.snippet || r.abstract || '').substring(0, 150);
-      div.innerHTML =
-        `<strong>${esc(i+1)}. ${safeLink(url, title)}</strong>` +
-        `<p class="mb-0 small text-muted">${esc(snippet)}</p>` +
-        (r.patent_id ? `<span class="badge bg-purple">${esc('Patent: ' + r.patent_id)}</span>` : '') +
-        (r.authors ? `<span class="badge bg-secondary">${esc('Authors: ' + r.authors.substring(0,40))}</span>` : '');
+
+      // Build child elements safely via DOM API
+      const strong = document.createElement('strong');
+      strong.textContent = `${i+1}. `;
+      const a = document.createElement('a');
+      a.href = r.url || r.href || '#';
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = r.title || 'No title';
+      strong.appendChild(a);
+      div.appendChild(strong);
+
+      const p = document.createElement('p');
+      p.className = 'mb-0 small text-muted';
+      p.textContent = (r.snippet || r.abstract || '').substring(0, 150);
+      div.appendChild(p);
+
+      if (r.patent_id) {
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-purple';
+        badge.textContent = 'Patent: ' + r.patent_id;
+        div.appendChild(badge);
+      }
+      if (r.authors) {
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-secondary';
+        badge.textContent = 'Authors: ' + r.authors.substring(0, 40);
+        div.appendChild(badge);
+      }
+
       container.appendChild(div);
     });
     showToast(`Found ${results.length} results`, 'success');
@@ -285,11 +291,31 @@ function analyzeUrl() {
     const t = data.classification?.themes || {};
     const alert = document.createElement('div');
     alert.className = 'alert alert-success py-2';
-    alert.innerHTML =
-      `✅ Saved as <strong>${esc(data.sheet)}</strong> #${esc(data.id)}<br>` +
-      `<strong>${esc(data.title)}</strong><br>` +
-      `<small>Macro: ${esc((t.macro||[]).join(', ')||'–')}</small><br>` +
-      `<small>Meso: ${esc((t.meso||[]).slice(0,3).join(', ')||'–')}</small>`;
+
+    // Build content safely using DOM text nodes
+    const line1 = document.createElement('span');
+    line1.textContent = '✅ Saved as ';
+    const sheetStrong = document.createElement('strong');
+    sheetStrong.textContent = data.sheet;
+    line1.appendChild(sheetStrong);
+    line1.appendChild(document.createTextNode(` #${data.id}`));
+    alert.appendChild(line1);
+    alert.appendChild(document.createElement('br'));
+
+    const titleStrong = document.createElement('strong');
+    titleStrong.textContent = data.title || '';
+    alert.appendChild(titleStrong);
+    alert.appendChild(document.createElement('br'));
+
+    const macroSmall = document.createElement('small');
+    macroSmall.textContent = 'Macro: ' + ((t.macro || []).join(', ') || '–');
+    alert.appendChild(macroSmall);
+    alert.appendChild(document.createElement('br'));
+
+    const mesoSmall = document.createElement('small');
+    mesoSmall.textContent = 'Meso: ' + ((t.meso || []).slice(0, 3).join(', ') || '–');
+    alert.appendChild(mesoSmall);
+
     container.appendChild(alert);
     refreshCharts();
     showToast('Saved to database!', 'success');

@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import io
+import ipaddress
 import json
 import logging
-import re
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
@@ -34,23 +34,44 @@ _ALLOWED_SCHEMES = {"http", "https"}
 def _validate_url(url: str) -> str | None:
     """
     Validate a user-supplied URL.
-    Returns a sanitized URL string or None if invalid.
-    Only allows http/https schemes to prevent SSRF via file://, ftp://, etc.
+    Returns the URL string if valid, or None if it should be rejected.
+
+    Rejects:
+    - Non-http/https schemes (file://, ftp://, javascript://, etc.)
+    - URLs with no hostname
+    - URLs resolving to private, loopback, link-local, or reserved IP ranges
+      (uses the ipaddress stdlib module to cover all RFC-1918 / RFC-4193 ranges)
     """
     if not url:
         return None
     try:
         parsed = urlparse(url)
-    except Exception:
+        # Access port to catch malformed URLs like http://fc00::1 (bare IPv6)
+        _ = parsed.port
+    except (Exception, ValueError):
         return None
     if parsed.scheme not in _ALLOWED_SCHEMES:
         return None
     if not parsed.netloc:
         return None
-    # Reject URLs resolving to private/loopback ranges by hostname pattern
-    hostname = parsed.hostname or ""
-    if hostname in ("localhost", "127.0.0.1", "::1") or hostname.startswith("192.168.") or hostname.startswith("10."):
+
+    hostname = parsed.hostname
+    # Reject missing hostname (e.g. bare IPv6 without brackets)
+    if not hostname:
         return None
+    # Reject plain "localhost"
+    if hostname.lower() == "localhost":
+        return None
+
+    # If the hostname looks like an IP address, check for private/reserved ranges
+    try:
+        ip = ipaddress.ip_address(hostname)
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+            return None
+    except ValueError:
+        # Not an IP address – hostname-based, allow it (DNS resolution happens later)
+        pass
+
     return url
 
 # ─── Pages ───────────────────────────────────────────────────────────────────
@@ -146,12 +167,16 @@ def api_search():
     else:
         results = search_engine.search_web(query, max_results)
 
-    # Save to DB (skip error entries)
+    # Save to DB (skip error entries); strip internal error details from response
+    sanitized = []
     for r in results:
-        if "error" not in r:
+        if "error" in r:
+            sanitized.append({"error": "Search request failed. Please try again."})
+        else:
             excel_manager.save_search_result(r, query)
+            sanitized.append(r)
 
-    return jsonify(results)
+    return jsonify(sanitized)
 
 
 @app.route("/api/scrape", methods=["POST"])

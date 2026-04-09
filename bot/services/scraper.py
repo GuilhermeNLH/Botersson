@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import ipaddress
+import logging
 import re
 import time
 from typing import Any
@@ -13,6 +15,8 @@ import requests
 from bs4 import BeautifulSoup
 
 from config import ScrapingConfig
+
+log = logging.getLogger(__name__)
 
 _DEFAULT_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -45,6 +49,43 @@ def _clean_text(text: str) -> str:
     return text.strip()
 
 
+_ALLOWED_SCHEMES = {"http", "https"}
+
+
+def _validate_scrape_url(url: str) -> bool:
+    """
+    Return True only for safe http/https URLs that do not point to
+    private, loopback, link-local, or reserved IP addresses.
+    Hostname-based URLs are allowed; IP-based URLs are checked against
+    private/reserved ranges using the ipaddress stdlib module.
+    """
+    if not url:
+        return False
+    try:
+        parsed = urlparse(url)
+        # Access port to catch malformed URLs like http://fc00::1 (bare IPv6)
+        _ = parsed.port
+    except (Exception, ValueError):
+        return False
+    if parsed.scheme not in _ALLOWED_SCHEMES:
+        return False
+    if not parsed.netloc:
+        return False
+    hostname = parsed.hostname
+    # Reject missing hostname (e.g. bare IPv6 without brackets)
+    if not hostname:
+        return False
+    if hostname.lower() == "localhost":
+        return False
+    try:
+        ip = ipaddress.ip_address(hostname)
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+            return False
+    except ValueError:
+        pass  # Not an IP address – allow
+    return True
+
+
 def scrape_url(url: str) -> dict[str, Any]:
     """
     Synchronously scrape a URL and return a structured result.
@@ -62,6 +103,10 @@ def scrape_url(url: str) -> dict[str, Any]:
         "success": False,
         "error": None,
     }
+
+    if not _validate_scrape_url(url):
+        result["error"] = "URL rejected: only public http/https URLs are allowed"
+        return result
 
     headers = dict(_DEFAULT_HEADERS)
     if ScrapingConfig.ROTATE_UA:
@@ -122,7 +167,8 @@ def scrape_url(url: str) -> dict[str, Any]:
             return result
 
         except requests.exceptions.RequestException as exc:
-            result["error"] = str(exc)
+            log.warning("Scraping failed for %s (attempt %d): %s", url, attempt + 1, exc)
+            result["error"] = "Could not retrieve the page. Check that the URL is accessible."
             if attempt < ScrapingConfig.MAX_RETRIES - 1:
                 time.sleep(ScrapingConfig.DELAY * (attempt + 1))
 

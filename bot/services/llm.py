@@ -46,8 +46,8 @@ def _call_ollama(prompt: str, system: str = "", model: str | None = None) -> str
         except requests.exceptions.ConnectionError:
             log.warning("Ollama not reachable at %s", OllamaConfig.HOST)
             return (
-                "⚠️ **Ollama is not running.** Please start Ollama with `ollama serve` "
-                "and make sure the model is pulled (`ollama pull %s`)." % m
+                f"⚠️ **Ollama is not running.** Please start Ollama with `ollama serve` "
+                f"and make sure the model is pulled (`ollama pull {m}`)."
             )
         except Exception as exc:  # noqa: BLE001
             log.warning("Ollama error with model %s: %s", m, exc)
