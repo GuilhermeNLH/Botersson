@@ -171,6 +171,17 @@ python run.py</pre>
 {% block scripts %}
 <script>
 function testOllama() {
+  const setAlertWithCommand = (className, prefixText, commandText) => {
+    const container = document.getElementById('ollama-test-result');
+    const alert = document.createElement('div');
+    alert.className = `alert ${className} py-1`;
+    alert.appendChild(document.createTextNode(prefixText + ' '));
+    const code = document.createElement('code');
+    code.textContent = commandText;
+    alert.appendChild(code);
+    container.replaceChildren(alert);
+  };
+
   const btn = event.target;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Testing…';
@@ -184,18 +195,11 @@ function testOllama() {
         alert.textContent = `✅ Connected! Models: ${d.models.join(', ')}`;
         el.replaceChildren(alert);
       } else {
-        const alert = document.createElement('div');
-        alert.className = 'alert alert-warning py-1';
-        alert.textContent = '⚠️ Ollama connected but no models found. Run: ollama pull llama3.2';
-        el.replaceChildren(alert);
+        setAlertWithCommand('alert-warning', '⚠️ Ollama connected but no models found. Run:', 'ollama pull llama3.2');
       }
     })
     .catch(() => {
-      const container = document.getElementById('ollama-test-result');
-      const alert = document.createElement('div');
-      alert.className = 'alert alert-danger py-1';
-      alert.textContent = '❌ Cannot reach Ollama. Run: ollama serve';
-      container.replaceChildren(alert);
+      setAlertWithCommand('alert-danger', '❌ Cannot reach Ollama. Run:', 'ollama serve');
     })
     .finally(() => {
       btn.disabled = false;

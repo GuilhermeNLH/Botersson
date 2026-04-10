@@ -188,6 +188,15 @@
 
 {% block scripts %}
 <script>
+function safeExternalUrl(value) {
+  try {
+    const parsed = new URL(value, window.location.origin);
+    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.toString() : '#';
+  } catch (_) {
+    return '#';
+  }
+}
+
 function loadChart() {
   const type = document.getElementById('chart-type-select').value;
   document.getElementById('db-chart').src = `/api/chart?type=${encodeURIComponent(type)}&t=${Date.now()}`;
@@ -218,15 +227,6 @@ function runSearch() {
       return;
     }
     container.innerHTML = '';
-    const safeExternalUrl = (value) => {
-      try {
-        const parsed = new URL(value, window.location.origin);
-        return ['http:', 'https:'].includes(parsed.protocol) ? parsed.toString() : '#';
-      } catch (_) {
-        return '#';
-      }
-    };
-
     results.forEach((r, i) => {
       const div = document.createElement('div');
       div.className = 'mb-2 p-2 border rounded';
