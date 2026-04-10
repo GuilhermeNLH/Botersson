@@ -12,7 +12,9 @@ import requests
 from config import LLMConfig, OllamaConfig
 
 log = logging.getLogger(__name__)
-_OUTPUT_LANGUAGE = LLMConfig.RESPONSE_LANGUAGE
+_RESPONSE_LANGUAGE = LLMConfig.RESPONSE_LANGUAGE
+MAX_CONTEXT_CHARS = 5000
+MAX_SOURCE_SNIPPET_CHARS = 500
 
 
 # ─── Low-level helpers ───────────────────────────────────────────────────────
@@ -84,7 +86,7 @@ Also extract:
 - content_type: one of ["patent", "article", "web_page", "news", "other"]
 - key_concepts: list of 5-10 key terms
 - relevance_score: integer 0-100 (how relevant to the topic)
-- summary: 2-3 sentence summary written in {_OUTPUT_LANGUAGE}
+- summary: 2-3 sentence summary written in {_RESPONSE_LANGUAGE}
 
 Content title: {{title}}
 Content text (truncated):
@@ -169,7 +171,7 @@ _COMPARE_SYSTEM = (
 def compare_sources(sources: list[dict[str, Any]], topic: str) -> str:
     """Ask the LLM to compare multiple research sources."""
     formatted = "\n\n".join(
-        f"[{i+1}] {s.get('title','Untitled')}: {s.get('text','')[:500]}"
+        f"[{i+1}] {s.get('title','Untitled')}: {s.get('text','')[:MAX_SOURCE_SNIPPET_CHARS]}"
         for i, s in enumerate(sources)
     )
     prompt = (
@@ -185,7 +187,7 @@ def answer_question(question: str, context: str) -> str:
     clean_context = context.strip()
     prompt = (
         f"Responda à pergunta do usuário: {question}\n\n"
-        f"Contexto (pode estar vazio):\n{clean_context[:5000]}"
+        f"Contexto (pode estar vazio):\n{clean_context[:MAX_CONTEXT_CHARS]}"
     )
     return _call_ollama(prompt, system=_CAMUS_PERSONA_PT)
 
