@@ -43,6 +43,32 @@ class SearchCog(commands.Cog, name="Search"):
             )
         await ctx.send(embed=embed)
 
+    @commands.hybrid_command(name="search_scope", description="Search with scope filters.")
+    async def search_scope(self, ctx: commands.Context, scope: str, *, query: str) -> None:
+        """Search the web using a predefined scope."""
+        await ctx.defer()
+        results = await search_engine.async_search_web_scoped(query, scope)
+
+        if not results:
+            await ctx.send("❌ No results found.")
+            return
+
+        if results and "error" in results[0]:
+            await ctx.send(f"❌ Search error: {results[0]['error']}")
+            return
+
+        embed = discord.Embed(
+            title=f"🎯 Scoped Search ({truncate(scope, 20)}): {truncate(query, 100)}",
+            color=discord.Color.blue(),
+        )
+        for i, r in enumerate(results[:8], 1):
+            embed.add_field(
+                name=f"{i}. {truncate(r.get('title', 'No title'), 80)}",
+                value=f"{truncate(r.get('snippet', ''), 150)}\n[🔗 Link]({r.get('url', '')})",
+                inline=False,
+            )
+        await ctx.send(embed=embed)
+
     # ── /news ─────────────────────────────────────────────────────────────────
 
     @commands.hybrid_command(name="news", description="Search recent news about a topic.")

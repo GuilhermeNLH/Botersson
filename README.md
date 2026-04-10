@@ -1,50 +1,52 @@
-# 🤖 Botersson – Research Assistant Bot
+# 🤖 Botersson – Bot Assistente de Pesquisa
 
-> Discord bot for automated academic research: web search, patent analysis, article scraping, local AI classification (Ollama), Excel database management, MCP integration, and a full web GUI dashboard.
+> Bot para Discord focado em pesquisa acadêmica automatizada: busca na web, análise de patentes, scraping de artigos, classificação com IA local (Ollama), gerenciamento de banco em Excel, integração MCP e dashboard web completo.
 
 ---
 
-## ✨ Features
+## ✨ Funcionalidades
 
-| Feature | Description |
+| Funcionalidade | Descrição |
 |---|---|
-| 🔍 **Web Search** | DuckDuckGo search (no API key) |
-| ⚗️ **Patent Search** | Google Patents via scraping |
-| 📚 **Article Search** | Semantic Scholar + arXiv (free APIs) |
-| 🕷️ **Web Scraping** | Extract text from any URL |
-| 🤖 **Local AI (Ollama)** | Classify content into macro/meso/micro themes |
-| 📊 **Excel Database** | Auto-save all research to `.xlsx` with charts |
-| 🌐 **Web GUI** | Dashboard to manage data, search, and configure |
-| 🔗 **MCP Server** | Use with Claude Desktop / Cursor |
-| ⏰ **Automation** | Daily summary scheduler |
-| 🍎 **macOS Compatible** | Works on macOS Ventura (Apple Silicon + Intel/Hackintosh) |
+| 🔍 **Busca na Web** | Busca com DuckDuckGo (sem chave de API) |
+| ⚗️ **Busca de Patentes** | Google Patents via scraping |
+| 📚 **Busca de Artigos** | Semantic Scholar + arXiv (APIs gratuitas) |
+| 🕷️ **Web Scraping** | Extração de texto de qualquer URL |
+| 🤖 **IA Local (Ollama)** | Classificação em temas macro/meso/micro |
+| 📊 **Banco em Excel** | Salvamento automático em `.xlsx` com gráficos |
+| 🌐 **Interface Web** | Dashboard para gerenciar dados, buscas e configurações |
+| 🔗 **Servidor MCP** | Uso com Claude Desktop / Cursor |
+| 🎯 **Busca por Escopo** | Busca por escopo: web, news, academic, patents, github, government |
+| 🇧🇷 **Persona em Português** | Respostas da IA em português, com estilo reflexivo inspirado em Camus |
+| ⏰ **Automação** | Agendador de resumo diário |
+| 🍎 **Compatível com macOS** | Funciona no macOS Ventura (Apple Silicon + Intel/Hackintosh) |
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Início Rápido
 
-### Prerequisites
+### Pré-requisitos
 
 - **Python 3.10+**
-- **Ollama** (for local AI): [ollama.com](https://ollama.com)
-- **Discord Bot Token**: [discord.com/developers](https://discord.com/developers/applications)
+- **Ollama** (para IA local): [ollama.com](https://ollama.com)
+- **Token do Bot do Discord**: [discord.com/developers](https://discord.com/developers/applications)
 
 ### macOS / Hackintosh (Ventura)
 
 ```bash
-# 1. Install Homebrew (if needed)
+# 1. Instale o Homebrew (se necessário)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# 2. Install Python and Ollama
+# 2. Instale Python e Ollama
 brew install python@3.11
 brew install ollama
 
-# 3. Pull an AI model (choose one)
-ollama pull llama3.2        # Recommended – fast and accurate
-# ollama pull mistral       # Alternative
-# ollama pull phi3          # Lightweight option
+# 3. Baixe um modelo de IA (escolha um)
+ollama pull llama3.2        # Recomendado – rápido e preciso
+# ollama pull mistral       # Alternativa
+# ollama pull phi3          # Opção mais leve
 
-# 4. Clone and set up Botersson
+# 4. Clone e configure o Botersson
 git clone https://github.com/GuilhermeNLH/Botersson.git
 cd Botersson
 python3 -m venv venv
@@ -53,11 +55,11 @@ pip install -r requirements.txt
 
 # 5. Configure
 cp .env.example .env
-# Edit .env: set DISCORD_TOKEN=your_token_here
+# Edite o .env: defina DISCORD_TOKEN=your_token_here
 
-# 6. Start everything
-ollama serve &              # Start local LLM
-python run.py               # Start bot + web GUI
+# 6. Inicie tudo
+ollama serve &              # Inicia o LLM local
+python run.py               # Inicia bot + interface web
 ```
 
 ### Windows / Linux
@@ -69,7 +71,7 @@ source venv/bin/activate    # Linux/macOS
 
 pip install -r requirements.txt
 cp .env.example .env
-# Edit .env
+# Edite o .env
 
 ollama serve &
 python run.py
@@ -77,61 +79,62 @@ python run.py
 
 ---
 
-## 🎮 Discord Commands
+## 🎮 Comandos do Discord
 
-All commands support both slash `/` and prefix `!` syntax.
+Todos os comandos funcionam tanto com slash `/` quanto com prefixo `!`.
 
-### 🔍 Search
-| Command | Description |
+### 🔍 Busca
+| Comando | Descrição |
 |---|---|
-| `/search <query>` | Web search via DuckDuckGo |
-| `/news <query>` | Search recent news |
-| `/scrape <url>` | Extract text from a URL |
+| `/search <query>` | Busca na web via DuckDuckGo |
+| `/search_scope <scope> <query>` | Busca por escopo (`web`, `news`, `academic`, `patents`, `github`, `government`) |
+| `/news <query>` | Busca de notícias recentes |
+| `/scrape <url>` | Extrai texto de uma URL |
 
-### ⚗️ Patents & Articles
-| Command | Description |
+### ⚗️ Patentes e Artigos
+| Comando | Descrição |
 |---|---|
-| `/patent <query>` | Search Google Patents |
-| `/article <query>` | Search Semantic Scholar |
-| `/arxiv <query>` | Search arXiv preprints |
-| `/analyze_patent <url> [topic]` | Scrape + AI classify a patent |
-| `/analyze_article <url> [topic]` | Scrape + AI classify an article |
+| `/patent <query>` | Busca no Google Patents |
+| `/article <query>` | Busca no Semantic Scholar |
+| `/arxiv <query>` | Busca de preprints no arXiv |
+| `/analyze_patent <url> [topic]` | Scraping + classificação por IA de uma patente |
+| `/analyze_article <url> [topic]` | Scraping + classificação por IA de um artigo |
 
-### 🤖 AI
-| Command | Description |
+### 🤖 IA
+| Comando | Descrição |
 |---|---|
-| `/ask <question>` | Ask the local LLM a question |
-| `/summarize <text>` | Summarize text with AI |
-| `/classify <topic> <text>` | Classify text into macro/meso/micro themes |
-| `/models` | List available Ollama models |
+| `/ask <question>` | Faz uma pergunta ao LLM local |
+| `/summarize <text>` | Resume texto com IA |
+| `/classify <topic> <text>` | Classifica texto em temas macro/meso/micro |
+| `/models` | Lista modelos Ollama disponíveis |
 
-### 📊 Database / Excel
-| Command | Description |
+### 📊 Banco de Dados / Excel
+| Comando | Descrição |
 |---|---|
-| `/db_summary` | Show record counts per sheet |
-| `/chart [bar\|pie\|line] [topic]` | Generate a database chart |
-| `/theme_chart [topic]` | Chart theme distribution |
-| `/list_sheet [sheet] [limit]` | List entries from a sheet |
-| `/add_theme <type> <name> [parent]` | Add a macro/meso/micro theme |
-| `/export_excel` | Download the Excel file |
+| `/db_summary` | Mostra contagem de registros por planilha |
+| `/chart [bar\|pie\|line] [topic]` | Gera gráfico do banco |
+| `/theme_chart [topic]` | Gera gráfico de distribuição de temas |
+| `/list_sheet [sheet] [limit]` | Lista entradas de uma planilha |
+| `/add_theme <type> <name> [parent]` | Adiciona tema macro/meso/micro |
+| `/export_excel` | Baixa o arquivo Excel |
 
 ---
 
-## 🌐 Web GUI
+## 🌐 Interface Web
 
-Access at **http://localhost:5000** after starting with `python run.py`.
+Acesse em **http://localhost:5000** após iniciar com `python run.py`.
 
-| Page | URL | Features |
+| Página | URL | Recursos |
 |---|---|---|
-| **Dashboard** | `/` | Search, analyze URLs, charts, quick add themes |
-| **Database** | `/excel` | Browse all sheets, add themes, export |
-| **Settings** | `/settings` | Ollama config, MCP setup, Discord commands |
+| **Dashboard** | `/` | Busca, análise de URLs, gráficos, adição rápida de temas |
+| **Banco de Dados** | `/excel` | Navegar por planilhas, adicionar temas, exportar |
+| **Configurações** | `/settings` | Configuração do Ollama, setup MCP, comandos do Discord |
 
 ---
 
-## 🔗 MCP Integration (Claude Desktop / Cursor)
+## 🔗 Integração MCP (Claude Desktop / Cursor)
 
-Add to your MCP configuration file:
+Adicione no seu arquivo de configuração MCP:
 
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
@@ -150,16 +153,16 @@ Add to your MCP configuration file:
 }
 ```
 
-Available MCP tools: `search_web`, `search_patents`, `search_articles`, `scrape_url`, `classify_content`, `save_article`, `save_patent`, `get_database_summary`, `get_sheet_data`, `list_ollama_models`.
+Ferramentas MCP disponíveis: `search_web`, `search_in_scope`, `search_news`, `search_patents`, `search_articles`, `search_arxiv`, `scrape_url`, `scrape_patent`, `classify_content`, `summarize_text`, `answer_with_context`, `compare_sources`, `save_article`, `save_patent`, `get_database_summary`, `get_sheet_data`, `list_ollama_models`.
 
 ---
 
-## 📁 Project Structure
+## 📁 Estrutura do Projeto
 
 ```
 Botersson/
 ├── bot/
-│   ├── main.py              # Discord bot entry point
+│   ├── main.py              # Ponto de entrada do bot do Discord
 │   ├── cogs/
 │   │   ├── search.py        # /search, /news, /scrape
 │   │   ├── patents.py       # /patent, /article, /arxiv, /analyze_*
@@ -167,74 +170,74 @@ Botersson/
 │   │   └── excel.py         # /db_summary, /chart, /export_excel
 │   ├── services/
 │   │   ├── scraper.py       # Web scraping
-│   │   ├── search_engine.py # DuckDuckGo search
+│   │   ├── search_engine.py # Busca DuckDuckGo
 │   │   ├── patent_search.py # Google Patents + Semantic Scholar + arXiv
-│   │   ├── llm.py           # Ollama LLM integration
-│   │   ├── excel_manager.py # Excel read/write/charts
-│   │   └── mcp_server.py    # MCP server
+│   │   ├── llm.py           # Integração com Ollama LLM
+│   │   ├── excel_manager.py # Leitura/escrita/gráficos no Excel
+│   │   └── mcp_server.py    # Servidor MCP
 │   └── utils/
-│       └── helpers.py       # Shared utilities
+│       └── helpers.py       # Utilitários compartilhados
 ├── web/
-│   ├── app.py               # Flask web application
-│   ├── templates/           # Jinja2 HTML templates
+│   ├── app.py               # Aplicação web Flask
+│   ├── templates/           # Templates HTML Jinja2
 │   └── static/              # CSS + JS
-├── data/                    # Excel files (auto-created)
+├── data/                    # Arquivos Excel (auto-criados)
 ├── config/
-│   ├── config.yaml          # Application configuration
-│   └── __init__.py          # Config loader
-├── run.py                   # Unified launcher
+│   ├── config.yaml          # Configuração da aplicação
+│   └── __init__.py          # Loader de configuração
+├── run.py                   # Launcher unificado
 ├── requirements.txt
-└── .env.example             # Environment template
+└── .env.example             # Template de variáveis de ambiente
 ```
 
 ---
 
-## ⚙️ Configuration
+## ⚙️ Configuração
 
-Edit `config/config.yaml` or use environment variables in `.env`.
+Edite `config/config.yaml` ou use variáveis de ambiente no `.env`.
 
-### Key `.env` variables
+### Principais variáveis `.env`
 
 ```env
 DISCORD_TOKEN=your_token_here
-OLLAMA_MODEL=llama3.2        # or mistral, phi3, llama3
+OLLAMA_MODEL=llama3.2        # ou mistral, phi3, llama3
 OLLAMA_HOST=http://localhost:11434
 WEB_PORT=5000
 DATA_DIR=./data
 ```
 
-### Launcher modes
+### Modos de execução
 
 ```bash
-python run.py           # Bot + Web GUI (default)
-python run.py --bot     # Discord bot only
-python run.py --web     # Web GUI only
-python run.py --mcp     # MCP stdio server only
+python run.py           # Bot + Interface Web (padrão)
+python run.py --bot     # Apenas bot do Discord
+python run.py --web     # Apenas interface web
+python run.py --mcp     # Apenas servidor MCP via stdio
 ```
 
 ---
 
-## 🛠️ Troubleshooting
+## 🛠️ Solução de Problemas
 
-**Ollama not responding:**
+**Ollama não responde:**
 ```bash
-ollama serve                  # Start the server
-ollama pull llama3.2          # Pull a model if none exists
+ollama serve                  # Inicie o servidor
+ollama pull llama3.2          # Baixe um modelo se não houver nenhum
 ```
 
-**Discord slash commands not showing:**
-- Ensure the bot has `applications.commands` scope
-- It can take up to 1 hour for global commands to propagate
-- Set `DISCORD_GUILD_ID` in `.env` for instant guild-specific sync
+**Comandos slash do Discord não aparecem:**
+- Garanta que o bot tenha o escopo `applications.commands`
+- A propagação de comandos globais pode levar até 1 hora
+- Defina `DISCORD_GUILD_ID` no `.env` para sincronização instantânea por guild
 
-**Excel file location:**
+**Local do arquivo Excel:**
 ```
 data/research_data.xlsx
 ```
-Change via `EXCEL_FILENAME` and `DATA_DIR` in `.env`.
+Altere via `EXCEL_FILENAME` e `DATA_DIR` no `.env`.
 
 ---
 
-## 📄 License
+## 📄 Licença
 
-MIT – See [LICENSE](LICENSE) for details.
+MIT – Veja [LICENSE](LICENSE) para detalhes.

@@ -9,9 +9,12 @@ from typing import Any
 
 import requests
 
-from config import OllamaConfig
+from config import LLMConfig, OllamaConfig
 
 log = logging.getLogger(__name__)
+_RESPONSE_LANGUAGE = LLMConfig.RESPONSE_LANGUAGE
+MAX_CONTEXT_CHARS = 5000
+MAX_SOURCE_SNIPPET_CHARS = 500
 
 
 # ─── Low-level helpers ───────────────────────────────────────────────────────
@@ -72,7 +75,7 @@ _CLASSIFY_SYSTEM = """You are a research assistant specialized in organizing aca
 You must respond ONLY with valid JSON.
 No markdown, no code blocks, just raw JSON."""
 
-_CLASSIFY_PROMPT_TPL = """Given the research topic: "{topic}"
+_CLASSIFY_PROMPT_TPL = f"""Given the research topic: "{{topic}}"
 
 Analyze this content and classify it into hierarchical themes:
 - MACRO: broad overarching themes (2-4 items)
@@ -83,11 +86,11 @@ Also extract:
 - content_type: one of ["patent", "article", "web_page", "news", "other"]
 - key_concepts: list of 5-10 key terms
 - relevance_score: integer 0-100 (how relevant to the topic)
-- summary: 2-3 sentence summary
+- summary: 2-3 sentence summary written in {_RESPONSE_LANGUAGE}
 
-Content title: {title}
+Content title: {{title}}
 Content text (truncated):
-{text}
+{{text}}
 
 Return ONLY valid JSON matching this structure:
 {{
@@ -137,8 +140,16 @@ def classify_content(text: str, title: str, topic: str) -> dict[str, Any]:
         }
 
 
-_SUMMARY_SYSTEM = """You are a concise academic summarizer. 
-Provide clear, structured responses in the same language the user writes in."""
+_CAMUS_PERSONA_PT = (
+    f"Você é {LLMConfig.PERSONA_NAME}, um assistente de pesquisa com personalidade "
+    f"{LLMConfig.PERSONA_STYLE}. Evite dramatização e jargão excessivo.\n"
+    f"Sempre responda em {LLMConfig.RESPONSE_LANGUAGE}, mesmo que a pergunta venha em outro idioma."
+)
+
+_SUMMARY_SYSTEM = (
+    f"{_CAMUS_PERSONA_PT}\n"
+    "Você é um resumidor acadêmico conciso. Entregue sínteses claras e bem estruturadas."
+)
 
 
 def summarize_content(text: str, max_words: int = 200) -> str:
@@ -151,13 +162,16 @@ def summarize_content(text: str, max_words: int = 200) -> str:
     return _call_ollama(prompt, system=_SUMMARY_SYSTEM)
 
 
-_COMPARE_SYSTEM = """You are an expert research analyst. Compare sources objectively."""
+_COMPARE_SYSTEM = (
+    f"{_CAMUS_PERSONA_PT}\n"
+    "Você é um analista de pesquisa experiente. Compare fontes com objetividade."
+)
 
 
 def compare_sources(sources: list[dict[str, Any]], topic: str) -> str:
     """Ask the LLM to compare multiple research sources."""
     formatted = "\n\n".join(
-        f"[{i+1}] {s.get('title','Untitled')}: {s.get('text','')[:500]}"
+        f"[{i+1}] {s.get('title', 'Untitled')}: {s.get('text', '')[:MAX_SOURCE_SNIPPET_CHARS]}"
         for i, s in enumerate(sources)
     )
     prompt = (
@@ -170,11 +184,12 @@ def compare_sources(sources: list[dict[str, Any]], topic: str) -> str:
 
 def answer_question(question: str, context: str) -> str:
     """Answer a user question based on scraped context."""
+    clean_context = context.strip()
     prompt = (
-        f"Using the context below, answer the question: {question}\n\n"
-        f"Context:\n{context[:5000]}"
+        f"Responda à pergunta do usuário: {question}\n\n"
+        f"Contexto (pode estar vazio):\n{clean_context[:MAX_CONTEXT_CHARS]}"
     )
-    return _call_ollama(prompt)
+    return _call_ollama(prompt, system=_CAMUS_PERSONA_PT)
 
 
 # ─── Async wrappers ──────────────────────────────────────────────────────────
