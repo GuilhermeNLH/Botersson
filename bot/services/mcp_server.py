@@ -289,8 +289,8 @@ async def _execute_tool(name: str, arguments: dict[str, Any]) -> Any:
         return {
             "title": result.get("title", ""),
             "abstract": result.get("abstract", ""),
-            "claims": result.get("claims", "")[:MAX_FIELD_CHARS],
-            "description": result.get("description", "")[:MAX_FIELD_CHARS],
+            "claims": (result.get("claims") or "")[:MAX_FIELD_CHARS],
+            "description": (result.get("description") or "")[:MAX_FIELD_CHARS],
             "success": result.get("success", False),
         }
 

@@ -171,7 +171,7 @@ _COMPARE_SYSTEM = (
 def compare_sources(sources: list[dict[str, Any]], topic: str) -> str:
     """Ask the LLM to compare multiple research sources."""
     formatted = "\n\n".join(
-        f"[{i+1}] {s.get('title','Untitled')}: {s.get('text','')[:MAX_SOURCE_SNIPPET_CHARS]}"
+        f"[{i+1}] {s.get('title', 'Untitled')}: {s.get('text', '')[:MAX_SOURCE_SNIPPET_CHARS]}"
         for i, s in enumerate(sources)
     )
     prompt = (
