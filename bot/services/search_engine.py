@@ -47,7 +47,7 @@ def search_web_scoped(
     max_results: int | None = None,
 ) -> list[dict[str, Any]]:
     """Search with a predefined scope filter."""
-    normalized_scope = (scope or "web").strip().lower()
+    normalized_scope = scope.strip().lower()
     if normalized_scope == "news":
         return search_news(query, max_results)
 

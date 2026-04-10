@@ -39,6 +39,15 @@ class OllamaConfig:
     FALLBACK_MODELS: list[str] = _yaml.get("ollama", {}).get("fallback_models", ["mistral", "phi3", "llama3"])
 
 
+class LLMConfig:
+    PERSONA_NAME: str = os.getenv("LLM_PERSONA_NAME", "Botersson")
+    PERSONA_STYLE: str = os.getenv(
+        "LLM_PERSONA_STYLE",
+        "inspirada em Albert Camus: claro, humano, lúcido, reflexivo e direto",
+    )
+    RESPONSE_LANGUAGE: str = os.getenv("LLM_RESPONSE_LANGUAGE", "português (pt-BR)")
+
+
 class ExcelConfig:
     DATA_DIR: Path = Path(os.getenv("DATA_DIR", str(_ROOT / "data")))
     FILENAME: str = os.getenv("EXCEL_FILENAME", _yaml.get("excel", {}).get("filename", "research_data.xlsx"))

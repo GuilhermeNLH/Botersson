@@ -9,7 +9,7 @@ from typing import Any
 
 import requests
 
-from config import OllamaConfig
+from config import LLMConfig, OllamaConfig
 
 log = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ Also extract:
 - content_type: one of ["patent", "article", "web_page", "news", "other"]
 - key_concepts: list of 5-10 key terms
 - relevance_score: integer 0-100 (how relevant to the topic)
-- summary: resumo em português (2-3 frases)
+- summary: 2-3 sentence summary written in Portuguese
 
 Content title: {title}
 Content text (truncated):
@@ -137,9 +137,11 @@ def classify_content(text: str, title: str, topic: str) -> dict[str, Any]:
         }
 
 
-_CAMUS_PERSONA_PT = """Você é Botersson, um assistente de pesquisa com personalidade inspirada em Albert Camus:
-claro, humano, lúcido, reflexivo e direto. Evite dramatização e jargão excessivo.
-Sempre responda em português (pt-BR), mesmo que a pergunta venha em outro idioma."""
+_CAMUS_PERSONA_PT = (
+    f"Você é {LLMConfig.PERSONA_NAME}, um assistente de pesquisa com personalidade "
+    f"{LLMConfig.PERSONA_STYLE}. Evite dramatização e jargão excessivo.\n"
+    f"Sempre responda em {LLMConfig.RESPONSE_LANGUAGE}, mesmo que a pergunta venha em outro idioma."
+)
 
 _SUMMARY_SYSTEM = (
     f"{_CAMUS_PERSONA_PT}\n"
