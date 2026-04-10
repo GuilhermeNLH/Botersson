@@ -13,16 +13,29 @@ function showToast(message, type = "info") {
   };
   const colorClass = colorMap[type] || colorMap.info;
 
-  const id = `toast-${Date.now()}`;
-  const html = `
-    <div id="${id}" class="toast align-items-center ${colorClass} border-0" role="alert" aria-live="assertive">
-      <div class="d-flex">
-        <div class="toast-body">${message}</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-      </div>
-    </div>`;
-  container.insertAdjacentHTML("beforeend", html);
-  const toastEl = document.getElementById(id);
+  const toastEl = document.createElement("div");
+  toastEl.id = `toast-${Date.now()}`;
+  toastEl.className = `toast align-items-center ${colorClass} border-0`;
+  toastEl.setAttribute("role", "alert");
+  toastEl.setAttribute("aria-live", "assertive");
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "d-flex";
+
+  const body = document.createElement("div");
+  body.className = "toast-body";
+  body.textContent = String(message);
+
+  const closeBtn = document.createElement("button");
+  closeBtn.type = "button";
+  closeBtn.className = "btn-close btn-close-white me-2 m-auto";
+  closeBtn.setAttribute("data-bs-dismiss", "toast");
+
+  wrapper.appendChild(body);
+  wrapper.appendChild(closeBtn);
+  toastEl.appendChild(wrapper);
+  container.appendChild(toastEl);
+
   const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
   toast.show();
   toastEl.addEventListener("hidden.bs.toast", () => toastEl.remove());

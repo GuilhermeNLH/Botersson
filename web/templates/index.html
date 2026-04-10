@@ -6,7 +6,7 @@
 
   <!-- Header -->
   <div class="col-12">
-    <div class="card bg-dark text-white">
+    <div class="card hero-card border-0">
       <div class="card-body py-3">
         <div class="d-flex align-items-center">
           <div>
@@ -41,8 +41,8 @@
 
   <!-- Quick search panel -->
   <div class="col-12 col-lg-6">
-    <div class="card shadow-sm h-100">
-      <div class="card-header bg-primary text-white">
+     <div class="card surface-card h-100">
+       <div class="card-header section-header-blue">
         <i class="bi bi-search me-2"></i>Quick Search
       </div>
       <div class="card-body">
@@ -70,8 +70,8 @@
 
   <!-- URL Analyzer -->
   <div class="col-12 col-lg-6">
-    <div class="card shadow-sm h-100">
-      <div class="card-header bg-success text-white">
+     <div class="card surface-card h-100">
+       <div class="card-header section-header-green">
         <i class="bi bi-link-45deg me-2"></i>Analyze URL with AI
       </div>
       <div class="card-body">
@@ -101,8 +101,8 @@
 
   <!-- Database chart -->
   <div class="col-12 col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header">
+     <div class="card surface-card">
+       <div class="card-header card-header-soft">
         <i class="bi bi-bar-chart me-2"></i>Database Overview
         <div class="float-end">
           <select id="chart-type-select" class="form-select form-select-sm d-inline-block w-auto" onchange="loadChart()">
@@ -120,8 +120,8 @@
 
   <!-- Theme chart -->
   <div class="col-12 col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header">
+     <div class="card surface-card">
+       <div class="card-header card-header-soft">
         <i class="bi bi-diagram-3 me-2"></i>Theme Distribution
       </div>
       <div class="card-body text-center">
@@ -132,8 +132,8 @@
 
   <!-- AI Models -->
   <div class="col-12 col-md-4">
-    <div class="card shadow-sm">
-      <div class="card-header bg-warning text-dark">
+     <div class="card surface-card">
+       <div class="card-header section-header-amber">
         <i class="bi bi-cpu me-2"></i>Ollama Models Available
       </div>
       <div class="card-body">
@@ -153,8 +153,8 @@
 
   <!-- Quick Add Theme -->
   <div class="col-12 col-md-8">
-    <div class="card shadow-sm">
-      <div class="card-header bg-info text-white">
+     <div class="card surface-card">
+       <div class="card-header section-header-indigo">
         <i class="bi bi-tags me-2"></i>Add Theme
       </div>
       <div class="card-body">
@@ -218,6 +218,15 @@ function runSearch() {
       return;
     }
     container.innerHTML = '';
+    const safeExternalUrl = (value) => {
+      try {
+        const parsed = new URL(value, window.location.origin);
+        return ['http:', 'https:'].includes(parsed.protocol) ? parsed.toString() : '#';
+      } catch (_) {
+        return '#';
+      }
+    };
+
     results.forEach((r, i) => {
       const div = document.createElement('div');
       div.className = 'mb-2 p-2 border rounded';
@@ -226,7 +235,7 @@ function runSearch() {
       const strong = document.createElement('strong');
       strong.textContent = `${i+1}. `;
       const a = document.createElement('a');
-      a.href = r.url || r.href || '#';
+      a.href = safeExternalUrl(r.url || r.href || '#');
       a.target = '_blank';
       a.rel = 'noopener';
       a.textContent = r.title || 'No title';
@@ -343,9 +352,16 @@ function addTheme() {
   })
   .then(r => r.json())
   .then(d => {
+    if (d.error) {
+      showToast(d.error, 'danger');
+      return;
+    }
     showToast(`Theme saved (ID: ${d.id})`, 'success');
     document.getElementById('theme-name').value = '';
     refreshCharts();
+  })
+  .catch(() => {
+    showToast('Could not save theme. Try again.', 'danger');
   });
 }
 
