@@ -12,6 +12,7 @@ import requests
 from config import LLMConfig, OllamaConfig
 
 log = logging.getLogger(__name__)
+_OUTPUT_LANGUAGE = LLMConfig.RESPONSE_LANGUAGE
 
 
 # ─── Low-level helpers ───────────────────────────────────────────────────────
@@ -72,7 +73,7 @@ _CLASSIFY_SYSTEM = """You are a research assistant specialized in organizing aca
 You must respond ONLY with valid JSON.
 No markdown, no code blocks, just raw JSON."""
 
-_CLASSIFY_PROMPT_TPL = """Given the research topic: "{topic}"
+_CLASSIFY_PROMPT_TPL = f"""Given the research topic: "{{topic}}"
 
 Analyze this content and classify it into hierarchical themes:
 - MACRO: broad overarching themes (2-4 items)
@@ -83,11 +84,11 @@ Also extract:
 - content_type: one of ["patent", "article", "web_page", "news", "other"]
 - key_concepts: list of 5-10 key terms
 - relevance_score: integer 0-100 (how relevant to the topic)
-- summary: 2-3 sentence summary written in Portuguese
+- summary: 2-3 sentence summary written in {_OUTPUT_LANGUAGE}
 
-Content title: {title}
+Content title: {{title}}
 Content text (truncated):
-{text}
+{{text}}
 
 Return ONLY valid JSON matching this structure:
 {{

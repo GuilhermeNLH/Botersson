@@ -17,9 +17,35 @@ class SearchCog(commands.Cog, name="Search"):
 
     # ── /search ───────────────────────────────────────────────────────────────
 
-    @commands.hybrid_command(name="search", description="Search with optional scope filters.")
-    async def search(self, ctx: commands.Context, scope: str = "web", *, query: str) -> None:
-        """Search the web using DuckDuckGo with optional scopes."""
+    @commands.hybrid_command(name="search", description="Search the internet for a topic.")
+    async def search(self, ctx: commands.Context, *, query: str) -> None:
+        """Search the web using DuckDuckGo."""
+        await ctx.defer()
+        results = await search_engine.async_search_web(query)
+
+        if not results:
+            await ctx.send("❌ No results found.")
+            return
+
+        if results and "error" in results[0]:
+            await ctx.send(f"❌ Search error: {results[0]['error']}")
+            return
+
+        embed = discord.Embed(
+            title=f"🔍 Search: {truncate(query, 100)}",
+            color=discord.Color.blue(),
+        )
+        for i, r in enumerate(results[:8], 1):
+            embed.add_field(
+                name=f"{i}. {truncate(r.get('title', 'No title'), 80)}",
+                value=f"{truncate(r.get('snippet', ''), 150)}\n[🔗 Link]({r.get('url', '')})",
+                inline=False,
+            )
+        await ctx.send(embed=embed)
+
+    @commands.hybrid_command(name="search_scope", description="Search with scope filters.")
+    async def search_scope(self, ctx: commands.Context, scope: str, *, query: str) -> None:
+        """Search the web using a predefined scope."""
         await ctx.defer()
         results = await search_engine.async_search_web_scoped(query, scope)
 
@@ -32,7 +58,7 @@ class SearchCog(commands.Cog, name="Search"):
             return
 
         embed = discord.Embed(
-            title=f"🔍 Search ({truncate(scope, 20)}): {truncate(query, 100)}",
+            title=f"🎯 Scoped Search ({truncate(scope, 20)}): {truncate(query, 100)}",
             color=discord.Color.blue(),
         )
         for i, r in enumerate(results[:8], 1):

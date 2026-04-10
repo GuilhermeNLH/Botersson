@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from typing import Any
 
 from duckduckgo_search import DDGS
 
 from config import SearchConfig
+
+log = logging.getLogger(__name__)
 
 SCOPED_SUFFIXES: dict[str, str] = {
     "web": "",
@@ -50,6 +53,9 @@ def search_web_scoped(
     normalized_scope = scope.strip().lower()
     if normalized_scope == "news":
         return search_news(query, max_results)
+    if normalized_scope not in SCOPED_SUFFIXES:
+        log.warning("Unknown search scope '%s'; falling back to 'web'.", normalized_scope)
+        normalized_scope = "web"
 
     suffix = SCOPED_SUFFIXES.get(normalized_scope, "")
     scoped_query = query if not suffix else f"{query} {suffix}"

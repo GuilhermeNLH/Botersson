@@ -86,7 +86,8 @@ All commands support both slash `/` and prefix `!` syntax.
 ### 🔍 Search
 | Command | Description |
 |---|---|
-| `/search [scope] <query>` | Scoped search (`web`, `news`, `academic`, `patents`, `github`, `government`) |
+| `/search <query>` | Web search via DuckDuckGo |
+| `/search_scope <scope> <query>` | Scoped search (`web`, `news`, `academic`, `patents`, `github`, `government`) |
 | `/news <query>` | Search recent news |
 | `/scrape <url>` | Extract text from a URL |
 
