@@ -83,7 +83,7 @@ Also extract:
 - content_type: one of ["patent", "article", "web_page", "news", "other"]
 - key_concepts: list of 5-10 key terms
 - relevance_score: integer 0-100 (how relevant to the topic)
-- summary: 2-3 sentence summary
+- summary: resumo em português (2-3 frases)
 
 Content title: {title}
 Content text (truncated):
@@ -137,8 +137,14 @@ def classify_content(text: str, title: str, topic: str) -> dict[str, Any]:
         }
 
 
-_SUMMARY_SYSTEM = """You are a concise academic summarizer. 
-Provide clear, structured responses in the same language the user writes in."""
+_CAMUS_PERSONA_PT = """Você é Botersson, um assistente de pesquisa com personalidade inspirada em Albert Camus:
+claro, humano, lúcido, reflexivo e direto. Evite dramatização e jargão excessivo.
+Sempre responda em português (pt-BR), mesmo que a pergunta venha em outro idioma."""
+
+_SUMMARY_SYSTEM = (
+    f"{_CAMUS_PERSONA_PT}\n"
+    "Você é um resumidor acadêmico conciso. Entregue sínteses claras e bem estruturadas."
+)
 
 
 def summarize_content(text: str, max_words: int = 200) -> str:
@@ -151,7 +157,10 @@ def summarize_content(text: str, max_words: int = 200) -> str:
     return _call_ollama(prompt, system=_SUMMARY_SYSTEM)
 
 
-_COMPARE_SYSTEM = """You are an expert research analyst. Compare sources objectively."""
+_COMPARE_SYSTEM = (
+    f"{_CAMUS_PERSONA_PT}\n"
+    "Você é um analista de pesquisa experiente. Compare fontes com objetividade."
+)
 
 
 def compare_sources(sources: list[dict[str, Any]], topic: str) -> str:
@@ -170,11 +179,12 @@ def compare_sources(sources: list[dict[str, Any]], topic: str) -> str:
 
 def answer_question(question: str, context: str) -> str:
     """Answer a user question based on scraped context."""
+    clean_context = context.strip()
     prompt = (
-        f"Using the context below, answer the question: {question}\n\n"
-        f"Context:\n{context[:5000]}"
+        f"Responda à pergunta do usuário: {question}\n\n"
+        f"Contexto (pode estar vazio):\n{clean_context[:5000]}"
     )
-    return _call_ollama(prompt)
+    return _call_ollama(prompt, system=_CAMUS_PERSONA_PT)
 
 
 # ─── Async wrappers ──────────────────────────────────────────────────────────

@@ -17,11 +17,11 @@ class SearchCog(commands.Cog, name="Search"):
 
     # ── /search ───────────────────────────────────────────────────────────────
 
-    @commands.hybrid_command(name="search", description="Search the internet for a topic.")
-    async def search(self, ctx: commands.Context, *, query: str) -> None:
-        """Search the web using DuckDuckGo."""
+    @commands.hybrid_command(name="search", description="Search with optional scope filters.")
+    async def search(self, ctx: commands.Context, scope: str = "web", *, query: str) -> None:
+        """Search the web using DuckDuckGo with optional scopes."""
         await ctx.defer()
-        results = await search_engine.async_search_web(query)
+        results = await search_engine.async_search_web_scoped(query, scope)
 
         if not results:
             await ctx.send("❌ No results found.")
@@ -32,7 +32,7 @@ class SearchCog(commands.Cog, name="Search"):
             return
 
         embed = discord.Embed(
-            title=f"🔍 Search: {truncate(query, 100)}",
+            title=f"🔍 Search ({truncate(scope, 20)}): {truncate(query, 100)}",
             color=discord.Color.blue(),
         )
         for i, r in enumerate(results[:8], 1):

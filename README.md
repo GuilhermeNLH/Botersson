@@ -16,6 +16,8 @@
 | 📊 **Excel Database** | Auto-save all research to `.xlsx` with charts |
 | 🌐 **Web GUI** | Dashboard to manage data, search, and configure |
 | 🔗 **MCP Server** | Use with Claude Desktop / Cursor |
+| 🎯 **Scoped Search** | Search by scope: web, news, academic, patents, github, government |
+| 🇧🇷 **Portuguese AI Persona** | AI replies in Portuguese with a reflective Camus-inspired style |
 | ⏰ **Automation** | Daily summary scheduler |
 | 🍎 **macOS Compatible** | Works on macOS Ventura (Apple Silicon + Intel/Hackintosh) |
 
@@ -84,7 +86,7 @@ All commands support both slash `/` and prefix `!` syntax.
 ### 🔍 Search
 | Command | Description |
 |---|---|
-| `/search <query>` | Web search via DuckDuckGo |
+| `/search [scope] <query>` | Scoped search (`web`, `news`, `academic`, `patents`, `github`, `government`) |
 | `/news <query>` | Search recent news |
 | `/scrape <url>` | Extract text from a URL |
 
@@ -150,7 +152,7 @@ Add to your MCP configuration file:
 }
 ```
 
-Available MCP tools: `search_web`, `search_patents`, `search_articles`, `scrape_url`, `classify_content`, `save_article`, `save_patent`, `get_database_summary`, `get_sheet_data`, `list_ollama_models`.
+Available MCP tools: `search_web`, `search_in_scope`, `search_news`, `search_patents`, `search_articles`, `search_arxiv`, `scrape_url`, `scrape_patent`, `classify_content`, `summarize_text`, `answer_with_context`, `compare_sources`, `save_article`, `save_patent`, `get_database_summary`, `get_sheet_data`, `list_ollama_models`.
 
 ---
 

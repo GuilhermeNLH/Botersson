@@ -46,6 +46,23 @@ TOOLS = [
         },
     },
     {
+        "name": "search_in_scope",
+        "description": "Search with a scope filter (web, news, academic, patents, github, government).",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Search query"},
+                "scope": {
+                    "type": "string",
+                    "enum": ["web", "news", "academic", "patents", "github", "government"],
+                    "default": "web",
+                },
+                "max_results": {"type": "integer", "description": "Maximum results", "default": 10},
+            },
+            "required": ["query"],
+        },
+    },
+    {
         "name": "search_patents",
         "description": "Search Google Patents for patents related to a topic.",
         "input_schema": {
@@ -70,8 +87,41 @@ TOOLS = [
         },
     },
     {
+        "name": "search_arxiv",
+        "description": "Search arXiv preprints for academic content.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "max_results": {"type": "integer", "default": 10},
+            },
+            "required": ["query"],
+        },
+    },
+    {
+        "name": "search_news",
+        "description": "Search recent news with DuckDuckGo news.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "max_results": {"type": "integer", "default": 10},
+            },
+            "required": ["query"],
+        },
+    },
+    {
         "name": "scrape_url",
         "description": "Extract text content from a URL (webpage, article, patent page).",
+        "input_schema": {
+            "type": "object",
+            "properties": {"url": {"type": "string"}},
+            "required": ["url"],
+        },
+    },
+    {
+        "name": "scrape_patent",
+        "description": "Extract title, abstract, claims and description from a Google Patent URL.",
         "input_schema": {
             "type": "object",
             "properties": {"url": {"type": "string"}},
@@ -89,6 +139,42 @@ TOOLS = [
                 "topic": {"type": "string", "description": "Research topic context"},
             },
             "required": ["text", "topic"],
+        },
+    },
+    {
+        "name": "summarize_text",
+        "description": "Summarize text using local LLM.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "text": {"type": "string"},
+                "max_words": {"type": "integer", "default": 200},
+            },
+            "required": ["text"],
+        },
+    },
+    {
+        "name": "answer_with_context",
+        "description": "Answer a question using optional context with local LLM.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "question": {"type": "string"},
+                "context": {"type": "string", "default": ""},
+            },
+            "required": ["question"],
+        },
+    },
+    {
+        "name": "compare_sources",
+        "description": "Compare multiple sources and identify agreements, contradictions and gaps.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "topic": {"type": "string"},
+                "sources": {"type": "array", "items": {"type": "object"}},
+            },
+            "required": ["topic", "sources"],
         },
     },
     {
@@ -166,6 +252,13 @@ async def _execute_tool(name: str, arguments: dict[str, Any]) -> Any:
             arguments["query"], arguments.get("max_results", 10)
         )
 
+    elif name == "search_in_scope":
+        return await search_engine.async_search_web_scoped(
+            arguments["query"],
+            arguments.get("scope", "web"),
+            arguments.get("max_results", 10),
+        )
+
     elif name == "search_patents":
         return await patent_search.async_search_patents(
             arguments["query"], arguments.get("max_results", 10)
@@ -176,9 +269,29 @@ async def _execute_tool(name: str, arguments: dict[str, Any]) -> Any:
             arguments["query"], arguments.get("max_results", 10)
         )
 
+    elif name == "search_arxiv":
+        return await patent_search.async_search_arxiv(
+            arguments["query"], arguments.get("max_results", 10)
+        )
+
+    elif name == "search_news":
+        return await search_engine.async_search_news(
+            arguments["query"], arguments.get("max_results", 10)
+        )
+
     elif name == "scrape_url":
         result = await scraper.async_scrape_url(arguments["url"])
         return {"title": result.get("title"), "text": result.get("text", "")[:3000]}
+
+    elif name == "scrape_patent":
+        result = await patent_search.async_scrape_patent(arguments["url"])
+        return {
+            "title": result.get("title", ""),
+            "abstract": result.get("abstract", ""),
+            "claims": result.get("claims", "")[:5000],
+            "description": result.get("description", "")[:5000],
+            "success": result.get("success", False),
+        }
 
     elif name == "classify_content":
         return await llm.async_classify(
@@ -186,6 +299,30 @@ async def _execute_tool(name: str, arguments: dict[str, Any]) -> Any:
             arguments.get("title", ""),
             arguments["topic"],
         )
+
+    elif name == "summarize_text":
+        return {
+            "summary": await llm.async_summarize(
+                arguments["text"],
+                arguments.get("max_words", 200),
+            )
+        }
+
+    elif name == "answer_with_context":
+        return {
+            "answer": await llm.async_answer(
+                arguments["question"],
+                arguments.get("context", ""),
+            )
+        }
+
+    elif name == "compare_sources":
+        return {
+            "comparison": await llm.async_compare(
+                arguments.get("sources", []),
+                arguments["topic"],
+            )
+        }
 
     elif name == "save_article":
         row_id = excel_manager.save_article(arguments)
