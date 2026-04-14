@@ -77,6 +77,32 @@ ollama serve &
 python run.py
 ```
 
+#### Windows (atalho .bat)
+
+```bat
+run_bot.bat
+```
+
+O script `run_bot.bat` automatiza o fluxo de terminal no Windows:
+- cria `venv` (se necessário)
+- instala dependências
+- cria `.env` a partir de `.env.example` (na primeira execução)
+- inicia `ollama serve`
+- executa `python run.py`
+
+#### macOS (atalho .command)
+
+```bash
+./run_bot.command
+```
+
+O script `run_bot.command` automatiza o fluxo de terminal no macOS:
+- cria `venv` (se necessário)
+- instala dependências
+- cria `.env` a partir de `.env.example` (na primeira execução)
+- inicia `ollama serve` (se ainda não estiver rodando)
+- executa `python run.py`
+
 ---
 
 ## 🎮 Comandos do Discord
