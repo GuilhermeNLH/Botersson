@@ -10,8 +10,8 @@
 
   <!-- Ollama settings -->
   <div class="col-12 col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header bg-warning text-dark">
+    <div class="card surface-card">
+      <div class="card-header section-header-amber">
         <i class="bi bi-cpu me-2"></i>Ollama LLM
       </div>
       <div class="card-body">
@@ -51,8 +51,8 @@
 
   <!-- MCP settings -->
   <div class="col-12 col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header bg-purple text-white" style="background-color:#7030A0!important">
+    <div class="card surface-card">
+      <div class="card-header section-header-pink">
         <i class="bi bi-diagram-2 me-2"></i>MCP Server
       </div>
       <div class="card-body">
@@ -80,8 +80,8 @@
 
   <!-- Scheduler settings -->
   <div class="col-12 col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header">
+    <div class="card surface-card">
+      <div class="card-header card-header-soft">
         <i class="bi bi-clock me-2"></i>Automation Scheduler
       </div>
       <div class="card-body">
@@ -100,8 +100,8 @@
 
   <!-- Discord settings -->
   <div class="col-12 col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header bg-primary text-white" style="background-color:#5865F2!important">
+    <div class="card surface-card">
+      <div class="card-header section-header-blue">
         <i class="bi bi-discord me-2"></i>Discord Bot
       </div>
       <div class="card-body">
@@ -130,8 +130,8 @@
 
   <!-- macOS setup guide -->
   <div class="col-12">
-    <div class="card shadow-sm">
-      <div class="card-header">
+    <div class="card surface-card">
+      <div class="card-header card-header-soft">
         <i class="bi bi-apple me-2"></i>macOS Ventura Setup Guide
       </div>
       <div class="card-body">
@@ -171,6 +171,17 @@ python run.py</pre>
 {% block scripts %}
 <script>
 function testOllama() {
+  const setAlertWithCommand = (className, prefixText, commandText) => {
+    const container = document.getElementById('ollama-test-result');
+    const alert = document.createElement('div');
+    alert.className = `alert ${className} py-1`;
+    alert.appendChild(document.createTextNode(prefixText + ' '));
+    const code = document.createElement('code');
+    code.textContent = commandText;
+    alert.appendChild(code);
+    container.replaceChildren(alert);
+  };
+
   const btn = event.target;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Testing…';
@@ -179,14 +190,16 @@ function testOllama() {
     .then(d => {
       const el = document.getElementById('ollama-test-result');
       if (d.models && d.models.length) {
-        el.innerHTML = `<div class="alert alert-success py-1">✅ Connected! Models: ${d.models.join(', ')}</div>`;
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success py-1';
+        alert.textContent = `✅ Connected! Models: ${d.models.join(', ')}`;
+        el.replaceChildren(alert);
       } else {
-        el.innerHTML = `<div class="alert alert-warning py-1">⚠️ Ollama connected but no models found. Run: <code>ollama pull llama3.2</code></div>`;
+        setAlertWithCommand('alert-warning', '⚠️ Ollama connected but no models found. Run:', 'ollama pull llama3.2');
       }
     })
     .catch(() => {
-      document.getElementById('ollama-test-result').innerHTML =
-        '<div class="alert alert-danger py-1">❌ Cannot reach Ollama. Run: <code>ollama serve</code></div>';
+      setAlertWithCommand('alert-danger', '❌ Cannot reach Ollama. Run:', 'ollama serve');
     })
     .finally(() => {
       btn.disabled = false;

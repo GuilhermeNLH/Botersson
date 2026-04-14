@@ -29,8 +29,8 @@
 
   <!-- Table -->
   <div class="col-12">
-    <div class="card shadow-sm">
-      <div class="card-header d-flex align-items-center">
+    <div class="card surface-card">
+      <div class="card-header card-header-soft d-flex align-items-center">
         <span class="fw-bold">{{ active_sheet }}</span>
         <span class="badge bg-secondary ms-2">{{ data | length }} rows</span>
         <button class="btn btn-sm btn-outline-primary ms-auto" onclick="refreshTable()">
@@ -82,8 +82,8 @@
   <!-- Quick add form (for themes) -->
   {% if 'Theme' in active_sheet %}
   <div class="col-12 col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header bg-info text-white">
+    <div class="card surface-card">
+      <div class="card-header section-header-indigo">
         <i class="bi bi-plus-circle me-2"></i>Add {{ active_sheet }}
       </div>
       <div class="card-body">
@@ -132,8 +132,15 @@ function addThemeFromTable() {
   })
   .then(r => r.json())
   .then(d => {
+    if (d.error) {
+      showToast(d.error, 'danger');
+      return;
+    }
     showToast(`Theme saved (ID: ${d.id})`, 'success');
     setTimeout(() => window.location.reload(), 800);
+  })
+  .catch(() => {
+    showToast('Could not save theme. Try again.', 'danger');
   });
 }
 </script>
